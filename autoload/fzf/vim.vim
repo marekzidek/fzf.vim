@@ -565,14 +565,16 @@ function! s:get_git_root()
 endfunction
 
 function! fzf#vim#gitfiles(args, ...)
+  let curr_dir= expand("%:p:h")
   let root = s:get_git_root()
+  
   if empty(root)
     return s:warn('Not in git repo')
   endif
   if a:args != '?'
     return s:fzf('gfiles', {
     \ 'source':  'git ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
-    \ 'dir':     root,
+    \ 'dir':     curr_dir,
     \ 'options': '-m --prompt "GitFiles> "'
     \}, a:000)
   endif
