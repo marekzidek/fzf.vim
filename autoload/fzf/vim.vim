@@ -564,20 +564,28 @@ function! s:get_git_root()
   return v:shell_error ? '' : root
 endfunction
 
+function! s:get_git_root_at(curr_dir)
+  let root = split(system('git -C ' . a:curr_dir . ' rev-parse --show-toplevel'), '\n')[0]
+  return v:shell_error ? '' : root
+endfunction
+
 function! fzf#vim#gitfiles(args, ...)
   let curr_dir= expand("%:p:h")
-  let root = s:get_git_root()
-  
+
+  "let root = s:get_git_root()
+  let root = s:get_git_root_at(curr_dir)
+
   if empty(root)
     return s:warn('Not in git repo')
   endif
   if a:args != '?'
     return s:fzf('gfiles', {
     \ 'source':  'git ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
-    \ 'dir':     curr_dir,
+    \ 'dir':     root,
     \ 'options': '-m --prompt "GitFiles> "'
     \}, a:000)
   endif
+
 
   " Here be dragons!
   " We're trying to access the common sink function that fzf#wrap injects to
